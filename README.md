@@ -1,6 +1,6 @@
-# Verify Zama TFHE bootstrapping in RISC Zero
+<img align="right" src="title.png" width="325" alt="Paris city view"/>
 
-<img align="right" src="title.png" width="300" alt="Paris city view"/>
+# Verify Zama TFHE bootstrapping in RISC Zero
 
 This repo is a fork of Louis Tremblay Thibault's VFHE implementation (https://github.com/tremblaythibaultl/vfhe). 
 
