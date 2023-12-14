@@ -391,7 +391,7 @@ impl CycleTracer {
                         };
 
                         let first_insn_word = if significant_cycle.first_instruction_new_segment {
-                            ", first instruction in the new segment,".to_string()
+                            " (first instruction in the new segment) ".to_string()
                         } else {
                             "".to_string()
                         };
@@ -412,7 +412,7 @@ impl CycleTracer {
                                         .decode(Isa::Rv32)
                                         .unwrap()
                                 )
-                                    .blue(),
+                                .blue(),
                                 format!("{:#08x}", significant_cycle.previous_instruction_is_jmp.0)
                                     .white(),
                             )
@@ -421,7 +421,7 @@ impl CycleTracer {
                         let branch_string = if significant_cycle.previous_instruction_is_branch.0
                             == 0
                             || significant_cycle.previous_instruction_is_branch.0 + 4
-                            == significant_cycle.pc
+                                == significant_cycle.pc
                         {
                             "".to_string()
                         } else {
@@ -435,12 +435,12 @@ impl CycleTracer {
                                         .decode(Isa::Rv32)
                                         .unwrap()
                                 )
-                                    .blue(),
+                                .blue(),
                                 format!(
                                     "{:#08x}",
                                     significant_cycle.previous_instruction_is_branch.0
                                 )
-                                    .white(),
+                                .white(),
                             )
                         };
 
@@ -465,7 +465,7 @@ impl CycleTracer {
                                 "{}",
                                 significant_cycle.current_cycle - significant_cycle.previous_cycle
                             )
-                                .blue(),
+                            .blue(),
                         );
                     }
                     significant_cycles_shown[i] = true;

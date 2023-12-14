@@ -1,18 +1,23 @@
-mod cycle_trace;
+#[macro_use]
+pub mod cycle_trace;
+pub mod ttfhe;
+
+#[macro_use]
+extern crate include_bytes_aligned;
 
 use core::hint::black_box;
-use ttfhe::{N,
-            ggsw::{cmux, GgswCiphertext},
+use crate::ttfhe::{N, ggsw::{cmux, GgswCiphertext},
             glwe::GlweCiphertext,
             lwe::LweCiphertext
 };
 risc0_zkvm::guest::entry!(main);
 
-static BSK_BYTES: &[u8] = include_bytes!("../../../bsk");
-static C_BYTES: &[u8] = include_bytes!("../../../c");
+static BSK_BYTES: &[u8] = include_bytes_aligned!(8, "../../../bsk");
+static C_BYTES: &[u8] = include_bytes_aligned!(8, "../../../c");
 
 pub fn main() {
     cycle_trace::init_trace_logger();
+
     start_timer!("Total");
 
     start_timer!("Load the bootstrapping key");
