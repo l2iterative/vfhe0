@@ -16,7 +16,7 @@ time can be reduced.
 For the purpose of checkpointing the library, a few branches are created, reflecting different versions of this library. 
 People can compare between these branches and the latest version.
 
-- The branch `article-1` is the unoptimized version from the Part I article, which uses the TFHE implementation out of the box.
+- The branch [article-1](https://github.com/l2iterative/vfhe0/tree/article-1) is the unoptimized version from the Part I article, which uses the TFHE implementation out of the box.
   It also has the code from the [profiler0](https://github.com/l2iterative/profiler0) tool from the Part II article. The output
   from the profiler is [here](https://gist.github.com/weikengchen/59aabee17de6803927e594d9b56681ca).
 
