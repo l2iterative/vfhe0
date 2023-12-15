@@ -1,6 +1,6 @@
-<img align="right" src="title.png" width="325" alt="Paris city view"/>
-
 # Verify Zama TFHE bootstrapping in RISC Zero
+
+<img align="right" src="title.png" width="325" alt="Paris city view"/>
 
 This repo is a fork of Louis Tremblay Thibault's VFHE implementation (https://github.com/tremblaythibaultl/vfhe). 
 
@@ -13,10 +13,14 @@ time can be reduced.
 
 ## Roadmap
 
-For the purpose of checkpointing the library, a few tags are created, reflecting different versions of this library. 
-People can compare between these tags and the latest version.
+For the purpose of checkpointing the library, a few branches are created, reflecting different versions of this library. 
+People can compare between these branches and the latest version.
 
-- 
+- The branch `article-1` is the unoptimized version from the Part I article, which uses the TFHE implementation out of the box.
+  It also has the code from the [profiler0](https://github.com/l2iterative/profiler0) tool from the Part II article. The output
+  from the profiler is [here](https://gist.github.com/weikengchen/59aabee17de6803927e594d9b56681ca).
+
+- An incoming release of the code would apply short polynomial representations. Then, with Karatsuba. 
 
 ## Articles
 
