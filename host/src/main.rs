@@ -1,5 +1,5 @@
 use methods::METHOD_ELF;
-use risc0_zkvm::{ExecutorEnv, ExecutorImpl};
+use risc0_zkvm::{default_executor, ExecutorEnv};
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -17,8 +17,7 @@ fn main() {
         .build()
         .unwrap();
 
-    let mut exec = ExecutorImpl::from_elf(env, METHOD_ELF).unwrap();
-    let _ = exec.run().unwrap();
+    let _ = default_executor().execute(env, METHOD_ELF).unwrap();
 
     cycle_tracer.borrow().print();
 }
