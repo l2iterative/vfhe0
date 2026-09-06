@@ -5,7 +5,7 @@ pub struct FinishedRecord {
     pub name: String,
     pub indents: usize,
     pub num_instructions: u32,
-    pub num_cycles: u32,
+    pub num_cycles: u64,
     pub start_significant_cycles: usize,
     pub end_significant_cycles: usize,
 }
@@ -14,7 +14,7 @@ pub struct PendingRecord {
     pub name: String,
     pub num_pending_records: usize,
     pub cur_num_instructions: u32,
-    pub cur_num_cycles: u32,
+    pub cur_num_cycles: u64,
     pub start_significant_cycles: usize,
 }
 
@@ -22,9 +22,9 @@ pub struct SignificantCycleRecord {
     pub latest_io_addrs: Vec<u32>,
     pub latest_accessed_new_pages: Vec<u32>,
     pub pc: u32,
-    pub current_cycle: u32,
+    pub current_cycle: u64,
     pub insn: u32,
-    pub previous_cycle: u32,
+    pub previous_cycle: u64,
     pub previous_instruction_is_jmp: (u32, u32),
     pub previous_instruction_is_branch: (u32, u32),
     pub first_instruction_new_segment: bool,
@@ -40,7 +40,7 @@ pub struct CycleTracer {
     pub msg_channel_buffer: [u8; 516],
     pub msg_len_channel_buffer: u32,
     pub num_instructions: u32,
-    pub previous_cycle_count: u32,
+    pub previous_cycle_count: u64,
     pub page_accessed: BTreeSet<u32>,
     pub latest_io_addrs: Vec<u32>,
     pub latest_accessed_new_pages: Vec<u32>,
@@ -215,22 +215,31 @@ impl CycleTracer {
                 }
             }
             TraceEvent::RegisterSet { .. } => {}
-            TraceEvent::MemorySet { addr, value } => {
+            TraceEvent::MemorySet { addr, region } => {
                 self.latest_io_addrs.push(addr);
 
-                if addr >= self.trace_msg_channel && addr < self.trace_msg_channel + 512 {
-                    self.msg_channel_buffer[(addr - self.trace_msg_channel) as usize] =
-                        (value & 0xff) as u8;
-                    self.msg_channel_buffer[(addr - self.trace_msg_channel + 1) as usize] =
-                        ((value >> 8) & 0xff) as u8;
-                    self.msg_channel_buffer[(addr - self.trace_msg_channel + 2) as usize] =
-                        ((value >> 16) & 0xff) as u8;
-                    self.msg_channel_buffer[(addr - self.trace_msg_channel + 3) as usize] =
-                        ((value >> 24) & 0xff) as u8;
+                for (offset, byte) in region.iter().enumerate() {
+                    let byte_addr = addr.wrapping_add(offset as u32);
+                    if byte_addr >= self.trace_msg_channel
+                        && byte_addr < self.trace_msg_channel + 512
+                    {
+                        self.msg_channel_buffer[(byte_addr - self.trace_msg_channel) as usize] =
+                            *byte;
+                    }
                 }
-                if addr == self.trace_msg_len_channel {
+
+                let value = match region.len() {
+                    0 => 0u32,
+                    1 => region[0] as u32,
+                    2 => u16::from_le_bytes([region[0], region[1]]) as u32,
+                    3 => u32::from_le_bytes([region[0], region[1], region[2], 0]),
+                    _ => u32::from_le_bytes(region[0..4].try_into().unwrap()),
+                };
+
+                if self.trace_msg_len_channel != 0 && addr == self.trace_msg_len_channel {
+                    let len = (value as usize).min(self.msg_channel_buffer.len());
                     let str =
-                        String::from_utf8(self.msg_channel_buffer[0..value as usize].to_vec())
+                        String::from_utf8(self.msg_channel_buffer[0..len].to_vec())
                             .unwrap();
                     self.pending_records.push(PendingRecord {
                         name: str,
@@ -240,7 +249,7 @@ impl CycleTracer {
                         start_significant_cycles: self.significant_cycles.len(),
                     });
                 }
-                if addr == self.trace_cycle_channel {
+                if self.trace_cycle_channel != 0 && addr == self.trace_cycle_channel {
                     let elem = self.pending_records.pop().unwrap();
                     self.finished_records.push(FinishedRecord {
                         name: elem.name,
@@ -252,6 +261,7 @@ impl CycleTracer {
                     });
                 }
             }
+            _ => {}
         }
     }
 

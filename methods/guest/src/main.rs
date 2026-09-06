@@ -1,3 +1,5 @@
+#![no_main]
+
 #[macro_use]
 pub mod cycle_trace;
 pub mod ttfhe;
