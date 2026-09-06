@@ -236,9 +236,10 @@ impl CycleTracer {
                     _ => u32::from_le_bytes(region[0..4].try_into().unwrap()),
                 };
 
-                if addr == self.trace_msg_len_channel {
+                if self.trace_msg_len_channel != 0 && addr == self.trace_msg_len_channel {
+                    let len = (value as usize).min(self.msg_channel_buffer.len());
                     let str =
-                        String::from_utf8(self.msg_channel_buffer[0..value as usize].to_vec())
+                        String::from_utf8(self.msg_channel_buffer[0..len].to_vec())
                             .unwrap();
                     self.pending_records.push(PendingRecord {
                         name: str,
@@ -248,7 +249,7 @@ impl CycleTracer {
                         start_significant_cycles: self.significant_cycles.len(),
                     });
                 }
-                if addr == self.trace_cycle_channel {
+                if self.trace_cycle_channel != 0 && addr == self.trace_cycle_channel {
                     let elem = self.pending_records.pop().unwrap();
                     self.finished_records.push(FinishedRecord {
                         name: elem.name,
